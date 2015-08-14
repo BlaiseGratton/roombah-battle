@@ -1,0 +1,13 @@
+.roombah {
+  height: 30px;
+  width: 30px;
+  position: relative;
+  z-index: 100;
+  border-radius: 50%;
+}
+
+.battle-arena {
+  background-color: lightgrey;
+  height: 300px;
+  width: 300px;
+}

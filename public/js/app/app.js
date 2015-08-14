@@ -3,8 +3,8 @@
 var app = angular.module('roombah-battle', []);
 
 
-app.controller('mainController', function(socket){
-  
+app.controller('mainController', function(socket, $scope){
+
   var vm = this;
 
   vm.messages = [];
@@ -17,7 +17,37 @@ app.controller('mainController', function(socket){
     socket.emit('message', vm.message);
     vm.message = null;
   };
-  
+
+  vm.color = 'blue';
+
+  socket.on('top', function(y) {
+    vm.top = y;
+  });
+
+  socket.on('right', function(x) {
+    vm.right = x;
+  });
+
+  $scope.$watch('vm.roombah', function() {
+    console.log('changed');
+  });
+
+  vm.roombahs = [
+
+    {
+      'color': 'blue',
+      'top': 0, 
+      'right': 0,
+      'name': 'DJ Roombah'
+    },
+    {
+      'color': 'red',
+      'top': 50,
+      'right': -50,
+      'name': 'Guy'
+    }
+  ];
+
 });
 
 app.factory('socket', function($rootScope) {
@@ -46,4 +76,38 @@ app.factory('socket', function($rootScope) {
   };
 
   return service;
+});
+
+app.controller('roombahController', function(socket) {
+  var vm = this;
+
+});
+
+app.directive('roombah', function(socket) {
+  return {
+    restrict: 'E',
+    template: '<div class="roombah">{{ roombah.name }}</div>', 
+    replace: true,
+    bindToController: {
+      'top': '=',
+      'right': '=',
+      'color': '=',
+      'name': '='
+    },
+    controller: 'roombahController',
+    controllerAs: 'rmbCtrl',
+    link:function (scope, element, attrs) {
+      scope.$watch(attrs.top, function (y) {
+        element.css('top', y + 'px');
+        socket.emit('top', y);
+      });
+      scope.$watch(attrs.right, function (x) {
+        element.css('right', x + 'px');
+        socket.emit('right', x);
+      });
+      scope.$watch(attrs.color, function (color) {
+        element.css('backgroundColor', color);
+      });
+    }
+  };
 });

@@ -23,8 +23,15 @@ io.on('connection', function(socket) {
   console.log('a user connected');
   
   socket.on('message', function(msg) {
-    console.log('message: ' + msg);
     io.emit('message', msg);
+  });
+
+  socket.on('top', function(y) {
+    io.emit('top', y);
+  });
+
+  socket.on('right', function(x) {
+    io.emit('right', x);
   });
 
   socket.on('disconnect', function() {
