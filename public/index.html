@@ -13,10 +13,10 @@
     <input type="text" ng-model="mainCtrl.message">
     <button ng-click="mainCtrl.broadcast()">Send</button>
     <div class="battle-arena">
-      <roombah top="mainCtrl.roombah.top" right="mainCtrl.roombah.right"
-               color="mainCtrl.roombah.color" name="mainCtrl.roombah.name">
+      <roombah top="roombah.top" right="roombah.right"
+               color="roombah.color" name="roombah.name">
       </roombah>
-      <div ng-repeat="roombah in mainCtrl.roombahs">
+      <div ng-repeat="roombah in mainCtrl.otherRoombahs">
         <roombah
                 top="roombah.top" right="roombah.right" 
                 color="roombah.color" name="roombah.name">
@@ -25,13 +25,13 @@
     </div>
     <form>
       <label for="">Left/Right</label>
-      <input type="number" ng-model="mainCtrl.roombah.right">
+      <input type="number" ng-model="roombah.right">
       <label for="">Up/Down</label>
-      <input type="number" ng-model="mainCtrl.roombah.top">
+      <input type="number" ng-model="roombah.top">
       <label for="">Name</label>
-      <input type="text" ng-model="mainCtrl.roombah.name">
+      <input type="text" ng-model="roombah.name">
       <label for="">Color</label>
-      <input type="text" ng-model="mainCtrl.roombah.color">
+      <input type="text" ng-model="roombah.color">
     </form>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular.js"></script>
     <script src="/socket.io/socket.io.js"></script>

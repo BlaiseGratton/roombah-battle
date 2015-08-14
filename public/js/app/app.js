@@ -28,11 +28,19 @@ app.controller('mainController', function(socket, $scope){
     vm.right = x;
   });
 
-  $scope.$watch('vm.roombah', function() {
-    console.log('changed');
+  socket.on('otherRoombahs', function(roombah) {
+    console.log(roombah);
   });
 
-  vm.roombahs = [
+  $scope.$watch('roombah.top', function(y) {
+    socket.emit('otherRoombahs', $scope.roombah);
+  });
+
+  $scope.$watch('roombah.right', function(x) {
+    socket.emit('otherRoombahs', $scope.roombah);
+  });
+
+  vm.otherRoombahs = [
 
     {
       'color': 'blue',
