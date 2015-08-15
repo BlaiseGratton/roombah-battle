@@ -16,12 +16,10 @@
       <roombah top="roombah.top" right="roombah.right"
                color="roombah.color" name="roombah.name">
       </roombah>
-      <div ng-repeat="roombah in mainCtrl.otherRoombahs">
-        <roombah
-                top="roombah.top" right="roombah.right" 
-                color="roombah.color" name="roombah.name">
-        </roombah>
-      </div>
+      <roombah ng-repeat="roombah in mainCtrl.otherRoombahs"
+               top="roombah.top" right="roombah.right" 
+               color="roombah.color" name="roombah.name">
+      </roombah>
     </div>
     <form>
       <label for="">Left/Right</label>

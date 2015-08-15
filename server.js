@@ -36,7 +36,6 @@ io.on('connection', function(socket) {
 
   socket.on('otherRoombahs', function(roombah) {
     socket.broadcast.emit('otherRoombahs', roombah);
-    console.log(roombah);
   });
 
   socket.on('disconnect', function() {

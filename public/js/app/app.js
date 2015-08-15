@@ -29,7 +29,13 @@ app.controller('mainController', function(socket, $scope){
   });
 
   socket.on('otherRoombahs', function(roombah) {
-    console.log(roombah);
+    roombahIndex = vm.roombahNames.indexOf(roombah.name);
+    if(roombahIndex > -1) {
+      vm.otherRoombahs[roombahIndex] = roombah;
+    } else {
+      vm.roombahNames.unshift(roombah.name);
+      vm.otherRoombahs.unshift(roombah);
+    }
   });
 
   $scope.$watch('roombah.top', function(y) {
@@ -40,55 +46,20 @@ app.controller('mainController', function(socket, $scope){
     socket.emit('otherRoombahs', $scope.roombah);
   });
 
-  vm.otherRoombahs = [
+  vm.roombahNames = [];
 
-    {
-      'color': 'blue',
-      'top': 0, 
-      'right': 0,
-      'name': 'DJ Roombah'
-    },
-    {
-      'color': 'red',
-      'top': 50,
-      'right': -50,
-      'name': 'Guy'
-    }
-  ];
-
+  vm.otherRoombahs = [];
 });
 
-app.factory('socket', function($rootScope) {
+app.factory('calculateMovement', function() {
 
-  var socket = io.connect();
-
-  service = {
-    on: function (eventName, callback) {
-      socket.on(eventName, function () {  
-        var args = arguments;
-        $rootScope.$apply(function () {
-          callback.apply(socket, args);
-        });
-      });
-    },
-    emit: function (eventName, data, callback) {
-      socket.emit(eventName, data, function () {
-        var args = arguments;
-        $rootScope.$apply(function () {
-          if (callback) {
-            callback.apply(socket, args);
-          }
-        });
-      })
-    }
-  };
+  var service = {};
 
   return service;
 });
 
 app.controller('roombahController', function(socket) {
   var vm = this;
-
 });
 
 app.directive('roombah', function(socket) {
@@ -119,3 +90,32 @@ app.directive('roombah', function(socket) {
     }
   };
 });
+
+app.factory('socket', function($rootScope) {
+
+  var socket = io.connect();
+
+  service = {
+    on: function (eventName, callback) {
+      socket.on(eventName, function () {  
+        var args = arguments;
+        $rootScope.$apply(function () {
+          callback.apply(socket, args);
+        });
+      });
+    },
+    emit: function (eventName, data, callback) {
+      socket.emit(eventName, data, function () {
+        var args = arguments;
+        $rootScope.$apply(function () {
+          if (callback) {
+            callback.apply(socket, args);
+          }
+        });
+      })
+    }
+  };
+
+  return service;
+});
+
