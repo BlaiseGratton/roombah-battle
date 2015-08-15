@@ -3,7 +3,7 @@
 var app = angular.module('roombah-battle', []);
 
 
-app.controller('mainController', function(socket, $scope){
+app.controller('mainController', function(socket, $scope, positionService, $interval){
 
   var vm = this;
 
@@ -28,6 +28,17 @@ app.controller('mainController', function(socket, $scope){
     vm.right = x;
   });
 
+  $scope.roombah = {};
+  $scope.roombah.top = 0;
+  $scope.roombah.right = 0;
+  $scope.roombah.goingDown = true;
+  $scope.roombah.goingRight = false;
+  $scope.roombah.color = 'violet';
+
+  $interval(function() {
+    $scope.roombah = positionService.calculateMovement($scope.roombah);
+  }, 20);
+
   socket.on('otherRoombahs', function(roombah) {
     roombahIndex = vm.roombahNames.indexOf(roombah.name);
     if(roombahIndex > -1) {
@@ -51,9 +62,42 @@ app.controller('mainController', function(socket, $scope){
   vm.otherRoombahs = [];
 });
 
-app.factory('calculateMovement', function() {
+app.factory('positionService', function() {
 
   var service = {};
+
+  var changeYDirection = function(roombah) {
+    roombah.goingDown = !roombah.goingDown;
+  }
+
+  var changeXDirection = function(roombah) {
+    roombah.goingRight = !roombah.goingRight;
+  }
+
+  var checkArenaBounds = function(roombah) {
+    if (roombah.top === 0 || roombah.top === 270) {
+      changeYDirection(roombah);
+    }
+    
+    if (roombah.right === 0 || roombah.right === 290) {
+      changeXDirection(roombah);
+    }
+  };
+
+  service.calculateMovement = function(roombah) {
+    if (roombah.goingDown) {
+      roombah.top++;
+    } else {
+      roombah.top--;
+    }
+    if (roombah.goingRight) {
+      roombah.right--;
+    } else {
+      roombah.right++;
+    }
+    checkArenaBounds(roombah);
+    return roombah;
+  };
 
   return service;
 });
