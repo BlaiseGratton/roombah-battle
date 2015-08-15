@@ -22,10 +22,6 @@ app.use(express.static(__dirname + '/public'));
 io.on('connection', function(socket) {
   console.log('a user connected');
   
-  socket.on('message', function(msg) {
-    io.emit('message', msg);
-  });
-
   socket.on('top', function(y) {
     io.emit('top', y);
   });

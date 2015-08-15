@@ -7,11 +7,6 @@
     <link href="css/main.css" rel="stylesheet">
   </head>
   <body ng-controller="mainController as mainCtrl">
-    <ul>
-      <li ng-repeat="message in mainCtrl.messages">{{ message }}</li>
-    </ul>
-    <input type="text" ng-model="mainCtrl.message">
-    <button ng-click="mainCtrl.broadcast()">Send</button>
     <div class="battle-arena">
       <roombah top="roombah.top" right="roombah.right"
                color="roombah.color" name="roombah.name">

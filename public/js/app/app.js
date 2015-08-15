@@ -7,19 +7,6 @@ app.controller('mainController', function(socket, $scope, positionService, $inte
 
   var vm = this;
 
-  vm.messages = [];
-
-  socket.on('message', function(msg) {
-    vm.messages.push(msg);
-  });
-
-  vm.broadcast = function() {
-    socket.emit('message', vm.message);
-    vm.message = null;
-  };
-
-  vm.color = 'blue';
-
   socket.on('top', function(y) {
     vm.top = y;
   });
