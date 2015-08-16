@@ -1,12 +1,13 @@
 "use strict";
 
 var gulp = require('gulp'),
-  concat = require('gulp-concat'),
-  uglify = require('gulp-uglify'),
-  rename = require('gulp-rename'),
-    sass = require('gulp-sass'),
-    maps = require('gulp-sourcemaps'),
-     del = require('del');
+concat = require('gulp-concat'),
+uglify = require('gulp-uglify'),
+rename = require('gulp-rename'),
+sass = require('gulp-sass'),
+maps = require('gulp-sourcemaps'),
+del = require('del'),
+ngAnnotate = require('gulp-ng-annotate');
 
 gulp.task("concatScripts", function() {
     return gulp.src([
@@ -22,6 +23,7 @@ gulp.task("concatScripts", function() {
 
 gulp.task('minifyScripts', ['concatScripts'], function() {
   return gulp.src("public/js/app.js")
+    .pipe(ngAnnotate())
     .pipe(uglify())
     .pipe(rename('app.min.js'))
     .pipe(gulp.dest('public/js'));
