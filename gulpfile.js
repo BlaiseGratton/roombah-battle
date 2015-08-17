@@ -50,7 +50,7 @@ gulp.task('copyIndex', function() {
 gulp.task('watchFiles', function() {
   gulp.watch(['src/styles/**/*.scss', 'src/styles/*.scss'], ['compileSass']);
   gulp.watch(['src/js/*.js', 'src/js/**/*.js'], ['concatScripts']);
-  gulp.watch(['src/*.html'], ['copyIndex']);
+  gulp.watch(['src/index.html'], ['copyIndex']);
   gulp.watch(['src/views/**/*.html'], ['transferViews']);
 });
 
