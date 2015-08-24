@@ -1,33 +1,26 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="roombah-battle">
+<html lang="en" ng-app="roomba-battle">
   <head>
     <meta charset="UTF-8">
     <base href="/">
-    <title>Roombah-Battle!</title>
+    <title>Roomba-Battle!</title>
     <link href="styles/main.css" rel="stylesheet">
   </head>
   <body ng-controller="mainController as mainCtrl">
     <battle-arena></battle-arena>
-    <div class="battle-arena">
-      <roombah top="roombah.top" right="roombah.right"
-               color="roombah.color" name="roombah.name">
-      </roombah>
-      <roombah ng-repeat="roombah in mainCtrl.otherRoombahs"
-               top="roombah.top" right="roombah.right" 
-               color="roombah.color" name="roombah.name">
-      </roombah>
-    </div>
-    <form>
+    <form ng-controller="roombaController as roombaCtrl">
       <label for="">Left/Right</label>
-      <input type="number" ng-model="roombah.right">
+      <input type="number" ng-model="roombaCtrl.roomba.x">
       <label for="">Up/Down</label>
-      <input type="number" ng-model="roombah.top">
+      <input type="number" ng-model="roombaCtrl.roomba.y">
       <label for="">Name</label>
-      <input type="text" ng-model="roombah.name">
+      <input type="text" ng-model="roombaCtrl.roomba.name">
       <label for="">Color</label>
-      <input type="text" ng-model="roombah.color">
+      <input type="text" ng-model="roombaCtrl.roomba.color">
+      <label for="">Radius</label>
+      <input type="number" ng-model="roombaCtrl.roomba.radius">
     </form>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular.js"></script>
+    <script src="assets/angular.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/app.js"></script>
   </body>

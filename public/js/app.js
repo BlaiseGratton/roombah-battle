@@ -1,60 +1,6 @@
 'use strict';
 
-var app = angular.module('roombah-battle', []);
-
-'use strict';
-
-app.controller('mainController', function(socket, $scope, positionService, $interval){
-
-  var vm = this;
-
-  socket.on('top', function(y) {
-    vm.top = y;
-  });
-
-  socket.on('right', function(x) {
-    vm.right = x;
-  });
-
-  $scope.roombah = {};
-  $scope.roombah.top = 0;
-  $scope.roombah.right = 0;
-  $scope.roombah.goingDown = true;
-  $scope.roombah.goingRight = false;
-  $scope.roombah.color = 'violet';
-
-  $interval(function() {
-    $scope.roombah = positionService.calculateMovement($scope.roombah);
-  }, 20);
-
-  socket.on('otherRoombahs', function(roombah) {
-    var roombahIndex = vm.roombahNames.indexOf(roombah.name);
-    if(roombahIndex > -1) {
-      vm.otherRoombahs[roombahIndex] = roombah;
-    } else {
-      vm.roombahNames.unshift(roombah.name);
-      vm.otherRoombahs.unshift(roombah);
-    }
-  });
-
-  $scope.$watch('roombah.top', function(y) {
-    socket.emit('otherRoombahs', $scope.roombah);
-  });
-
-  $scope.$watch('roombah.right', function(x) {
-    socket.emit('otherRoombahs', $scope.roombah);
-  });
-
-  vm.roombahNames = [];
-
-  vm.otherRoombahs = [];
-
-});
-
-'use strict';
-
-app.controller('roombahController', function(socket) {
-});
+var app = angular.module('roomba-battle', []);
 
 'use strict';
 
@@ -62,7 +8,9 @@ app.directive('battleArena', function() {
 
   return {
     restrict: 'E',
-    template: '<canvas id="battle-arena"></canvas>'
+    controller: 'arenaController',
+    template: '<canvas id="battle-arena" height="300" width="320"></canvas>',
+    replace: true
   };
 
 });
@@ -100,41 +48,116 @@ app.directive('roombah', function(socket) {
 
 'use strict';
 
+app.controller('arenaController', function(socket, drawingService) {
+
+  var vm = this;
+
+  socket.on('roombas', function(roombas) {
+    drawingService.drawRoombas(roombas);
+  });
+  
+});
+
+'use strict';
+
+app.controller('mainController', function(){
+  var vm = this;
+});
+
+'use strict';
+
+app.controller('roombaController', function(drawingService, $interval, positionService, socket) {
+
+  var vm = this;
+
+  vm.roomba = {};
+  vm.roomba.y = 100;
+  vm.roomba.x = 100;
+  vm.roomba.name = "Guy";
+  vm.roomba.color = 'orange';
+  vm.roomba.radius = 20;
+
+  $interval(function() {
+    vm.roomba = positionService.calculateMovement(vm.roomba);
+    socket.emit('roombas', vm.roomba);
+  }, 20);
+
+});
+
+'use strict';
+
+app.factory('drawingService', function() {
+
+  var service = {};
+  var canvas = document.querySelector('#battle-arena');
+  var ctx;
+
+  function drawRoomba(roomba) {
+    ctx.beginPath();
+    ctx.arc(roomba.x, roomba.y, roomba.radius, 0, Math.PI*2, true);
+    ctx.closePath();
+    ctx.fillStyle = roomba.color;
+    ctx.fill();
+  };
+
+  if (canvas.getContext) {
+    ctx = canvas.getContext('2d');
+    ctx.width = 320;
+    ctx.height = 300;
+    ctx.fillStyle = 'white';
+    ctx.rect(0, 0, 320, 300);
+    ctx.fill();
+  }
+
+  service.drawRoombas = function(roombas) {
+    debugger
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    roombas.forEach(function(roomba) {
+      drawRoomba(roomba);
+    });
+  } 
+
+  return service;
+
+});
+
+'use strict';
+
 app.factory('positionService', function() {
 
   var service = {};
 
-  var changeYDirection = function(roombah) {
-    roombah.goingDown = !roombah.goingDown;
+  var changeYDirection = function(roomba) {
+    roomba.goingDown = !roomba.goingDown;
   }
 
-  var changeXDirection = function(roombah) {
-    roombah.goingRight = !roombah.goingRight;
+  var changeXDirection = function(roomba) {
+    roomba.goingRight = !roomba.goingRight;
   }
 
-  var checkArenaBounds = function(roombah) {
-    if (roombah.top === 0 || roombah.top === 270) {
-      changeYDirection(roombah);
+  var checkArenaBounds = function(roomba) {
+    if (roomba.y === 0 || roomba.y === 270) {
+      changeYDirection(roomba);
     }
     
-    if (roombah.right === 0 || roombah.right === 290) {
-      changeXDirection(roombah);
+    if (roomba.x === 0 || roomba.x === 290) {
+      changeXDirection(roomba);
     }
   };
 
-  service.calculateMovement = function(roombah) {
-    if (roombah.goingDown) {
-      roombah.top++;
+  service.calculateMovement = function(roomba) {
+    if (roomba.goingDown) {
+      roomba.y++;
     } else {
-      roombah.top--;
+      roomba.y--;
     }
-    if (roombah.goingRight) {
-      roombah.right--;
+    if (roomba.goingRight) {
+      roomba.x--;
     } else {
-      roombah.right++;
+      roomba.x++;
     }
-    checkArenaBounds(roombah);
-    return roombah;
+    checkArenaBounds(roomba);
+    return roomba;
   };
 
   return service;

@@ -4,37 +4,37 @@ app.factory('positionService', function() {
 
   var service = {};
 
-  var changeYDirection = function(roombah) {
-    roombah.goingDown = !roombah.goingDown;
+  var changeYDirection = function(roomba) {
+    roomba.goingDown = !roomba.goingDown;
   }
 
-  var changeXDirection = function(roombah) {
-    roombah.goingRight = !roombah.goingRight;
+  var changeXDirection = function(roomba) {
+    roomba.goingRight = !roomba.goingRight;
   }
 
-  var checkArenaBounds = function(roombah) {
-    if (roombah.top === 0 || roombah.top === 270) {
-      changeYDirection(roombah);
+  var checkArenaBounds = function(roomba) {
+    if (roomba.y === 0 || roomba.y === 270) {
+      changeYDirection(roomba);
     }
     
-    if (roombah.right === 0 || roombah.right === 290) {
-      changeXDirection(roombah);
+    if (roomba.x === 0 || roomba.x === 290) {
+      changeXDirection(roomba);
     }
   };
 
-  service.calculateMovement = function(roombah) {
-    if (roombah.goingDown) {
-      roombah.top++;
+  service.calculateMovement = function(roomba) {
+    if (roomba.goingDown) {
+      roomba.y++;
     } else {
-      roombah.top--;
+      roomba.y--;
     }
-    if (roombah.goingRight) {
-      roombah.right--;
+    if (roomba.goingRight) {
+      roomba.x--;
     } else {
-      roombah.right++;
+      roomba.x++;
     }
-    checkArenaBounds(roombah);
-    return roombah;
+    checkArenaBounds(roomba);
+    return roomba;
   };
 
   return service;

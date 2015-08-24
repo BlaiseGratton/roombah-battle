@@ -1,3 +1,3 @@
 'use strict';
 
-var app = angular.module('roombah-battle', []);
+var app = angular.module('roomba-battle', []);

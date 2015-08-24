@@ -4,7 +4,9 @@ app.directive('battleArena', function() {
 
   return {
     restrict: 'E',
-    template: '<canvas id="battle-arena"></canvas>'
+    controller: 'arenaController',
+    template: '<canvas id="battle-arena" height="300" width="320"></canvas>',
+    replace: true
   };
 
 });

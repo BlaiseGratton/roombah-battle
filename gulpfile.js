@@ -61,7 +61,7 @@ gulp.task('clean', function() {
 });
 
 gulp.task("build", [
-    'clean', 
+    'clean',
     'minifyScripts', 
     'compileSass'
     ], function() {
