@@ -19,25 +19,41 @@ app.use(function(req, res, next) {
 
 app.use(express.static(__dirname + '/public'));
 
-var roombas = [];
-var roombaNames = [];
+var roombas = {};
+var roombaArray = [];
 
 io.on('connection', function(socket) {
-  console.log('a user connected');
-  
+
+  var roombaIndex;
+  var addedRoomba = false;
+
+  socket.on('join game', function(roomba) {
+    console.log(roomba);
+    socket.username = roomba.name;
+    roombaArray.push(roomba);
+    roombaIndex = roombaArray.indexOf(roomba);
+    console.log('index: ' + roombaIndex);
+    addedRoomba = true;
+  });
+
   socket.on('roombas', function(roomba) {
-    var roombaIndex = roombaNames.indexOf(roomba.name);
-    if(roombaIndex >= 0) {
-      roombas[roombaIndex] = roomba;
-    } else {
-      roombas.unshift(roomba);
-      roombaNames.unshift(roomba.name);
-    }
-    socket.emit('roombas', roombas);
+    roombas[roomba] = roomba;
+    roombaArray[roombaIndex] = roomba;
+    socket.emit('roombas', roombaArray);
   });
 
   socket.on('disconnect', function() {
-    console.log('user disconnected');
+    io.sockets.sockets.map(function(e) {
+      console.log(e.username);
+      return e.username;
+    });
+
+    if (addedRoomba) {
+      console.log(socket.username + 'disconnected');
+      delete roombas[socket.username];
+      roombaArray[roombaIndex] = null;
+      socket.broadcast.emit('roomba left');
+    }
   });
 });
 

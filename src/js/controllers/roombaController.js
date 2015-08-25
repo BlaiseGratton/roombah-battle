@@ -11,9 +11,11 @@ app.controller('roombaController', function(drawingService, $interval, positionS
   vm.roomba.color = 'orange';
   vm.roomba.radius = 20;
 
-  $interval(function() {
-    vm.roomba = positionService.calculateMovement(vm.roomba);
-    socket.emit('roombas', vm.roomba);
-  }, 20);
-
+  vm.joinGame = function() {
+    socket.emit('join game', vm.roomba);
+    $interval(function() {
+      vm.roomba = positionService.calculateMovement(vm.roomba);
+      socket.emit('roombas', vm.roomba);
+    }, 20);
+  };
 });

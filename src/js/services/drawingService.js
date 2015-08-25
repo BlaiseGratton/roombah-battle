@@ -24,7 +24,6 @@ app.factory('drawingService', function() {
   }
 
   service.drawRoombas = function(roombas) {
-    debugger
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     roombas.forEach(function(roomba) {
       drawRoomba(roomba);

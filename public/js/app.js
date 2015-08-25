@@ -4,6 +4,44 @@ var app = angular.module('roomba-battle', []);
 
 'use strict';
 
+app.controller('arenaController', function(socket, drawingService) {
+
+  socket.on('roombas', function(roombas) {
+    drawingService.drawRoombas(roombas);
+  });
+
+});
+
+'use strict';
+
+app.controller('mainController', function(){
+  var vm = this;
+});
+
+'use strict';
+
+app.controller('roombaController', function(drawingService, $interval, positionService, socket) {
+
+  var vm = this;
+
+  vm.roomba = {};
+  vm.roomba.y = 100;
+  vm.roomba.x = 100;
+  vm.roomba.name = "Guy";
+  vm.roomba.color = 'orange';
+  vm.roomba.radius = 20;
+
+  vm.joinGame = function() {
+    socket.emit('join game', vm.roomba);
+    $interval(function() {
+      vm.roomba = positionService.calculateMovement(vm.roomba);
+      socket.emit('roombas', vm.roomba);
+    }, 20);
+  };
+});
+
+'use strict';
+
 app.directive('battleArena', function() {
 
   return {
@@ -48,44 +86,6 @@ app.directive('roombah', function(socket) {
 
 'use strict';
 
-app.controller('arenaController', function(socket, drawingService) {
-
-  var vm = this;
-
-  socket.on('roombas', function(roombas) {
-    drawingService.drawRoombas(roombas);
-  });
-  
-});
-
-'use strict';
-
-app.controller('mainController', function(){
-  var vm = this;
-});
-
-'use strict';
-
-app.controller('roombaController', function(drawingService, $interval, positionService, socket) {
-
-  var vm = this;
-
-  vm.roomba = {};
-  vm.roomba.y = 100;
-  vm.roomba.x = 100;
-  vm.roomba.name = "Guy";
-  vm.roomba.color = 'orange';
-  vm.roomba.radius = 20;
-
-  $interval(function() {
-    vm.roomba = positionService.calculateMovement(vm.roomba);
-    socket.emit('roombas', vm.roomba);
-  }, 20);
-
-});
-
-'use strict';
-
 app.factory('drawingService', function() {
 
   var service = {};
@@ -110,7 +110,6 @@ app.factory('drawingService', function() {
   }
 
   service.drawRoombas = function(roombas) {
-    debugger
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     roombas.forEach(function(roomba) {
       drawRoomba(roomba);
