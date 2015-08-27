@@ -31,5 +31,4 @@ app.factory('drawingService', function() {
   } 
 
   return service;
-
 });

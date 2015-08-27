@@ -28,11 +28,9 @@ io.on('connection', function(socket) {
   var addedRoomba = false;
 
   socket.on('join game', function(roomba) {
-    console.log(roomba);
     socket.username = roomba.name;
     roombaArray.push(roomba);
     roombaIndex = roombaArray.indexOf(roomba);
-    console.log('index: ' + roombaIndex);
     addedRoomba = true;
   });
 
@@ -42,17 +40,21 @@ io.on('connection', function(socket) {
     socket.emit('roombas', roombaArray);
   });
 
+  socket.on('roomba left', function(index) {
+    console.log('user left');
+    console.log(index);
+  });
+
   socket.on('disconnect', function() {
     io.sockets.sockets.map(function(e) {
-      console.log(e.username);
       return e.username;
     });
 
     if (addedRoomba) {
-      console.log(socket.username + 'disconnected');
+      console.log(socket.username + ' disconnected');
       delete roombas[socket.username];
       roombaArray[roombaIndex] = null;
-      socket.broadcast.emit('roomba left');
+      socket.broadcast.emit('roomba left', roombaIndex);
     }
   });
 });
