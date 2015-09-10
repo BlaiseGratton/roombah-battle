@@ -10,6 +10,8 @@ app.controller('roombaController', function(drawingService, $interval, positionS
   vm.roomba.name = "Guy";
   vm.roomba.color = 'orange';
   vm.roomba.radius = 20;
+  vm.roomba.direction = .55;
+  vm.roomba.velocity = 2;
 
   vm.joinGame = function() {
     socket.emit('join game', vm.roomba);
