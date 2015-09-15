@@ -1,6 +1,6 @@
 'use strict';
 
-app.controller('roombaController', function(drawingService, $interval, positionService, socket) {
+app.controller('roombaController', function($interval, socket) {
 
   var vm = this;
 
@@ -12,12 +12,12 @@ app.controller('roombaController', function(drawingService, $interval, positionS
   vm.roomba.radius = 20;
   vm.roomba.direction = .55;
   vm.roomba.velocity = 2;
+  vm.roomba.collisions = [];
 
   vm.joinGame = function() {
     socket.emit('join game', vm.roomba);
     $interval(function() {
-      vm.roomba = positionService.calculateMovement(vm.roomba);
-      socket.emit('roombas', vm.roomba);
-    }, 20);
+      socket.emit('requestRoombas');
+    }, 25);
   };
 });
