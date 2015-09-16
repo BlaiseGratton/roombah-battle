@@ -12,12 +12,12 @@ app.controller('roombaController', function($interval, socket) {
   vm.roomba.radius = 20;
   vm.roomba.direction = .55;
   vm.roomba.velocity = 2;
-  vm.roomba.collisions = [];
+  vm.roomba.collidingWith = [];
 
   vm.joinGame = function() {
     socket.emit('join game', vm.roomba);
     $interval(function() {
       socket.emit('requestRoombas');
-    }, 25);
+    }, 15);
   };
 });

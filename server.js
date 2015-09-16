@@ -26,8 +26,6 @@ function calculateDistance(roomba1, roomba2) {
   return distance;
 }
 
-var counter = 0;
-
 function detectCollisions(roombas) {
   if (roombas) {
     roombas.forEach(function(roomba) {
@@ -39,21 +37,38 @@ function detectCollisions(roombas) {
         if (otherRoombas) {
           otherRoombas.forEach(function(rba) {
             var distance = calculateDistance(roomba, rba);
-            if (distance <= roomba.radius + rba.radius && roomba.collisions.indexOf(rba.name) === -1) {
-              console.log(rba.name + " " + counter);
-              counter++;
+            if (distance <= roomba.radius + rba.radius && roomba.collidingWith.indexOf(rba.name) === -1) {
+              roomba.collidingWith.push(rba.name);
+              rba.collidingWith.push(roomba.name);
               roombas = collideRoombas(roomba, rba, roombas);
+            }
+            if (distance >= roomba.radius + rba.radius) {
+              roomba.collidingWith.splice(roomba.collidingWith.indexOf(rba.name), 1);
+              rba.collidingWith.splice(roomba.collidingWith.indexOf(roomba.name), 1);
             }
           });
         }
       }
     });
-    roombas.forEach(function(roomba) {
-      if (!!roomba)
-        roomba.collisions = [];
-    });
   }
   return roombas;
+}
+
+function separateRoombas(roomba1, roomba2) {
+  console.log(roomba1.collidingWith);
+  console.log(roomba2.collidingWith);
+  roomba1.velocity *= .5;
+  roomba2.velocity *= .5;
+  roomba1 = calculateMovement([roomba1])[0];
+  roomba2 = calculateMovement([roomba2])[0];
+  if (calculateDistance(roomba1, roomba2) >= roomba1.distance + roomba2.distance) {
+    var separatedRoombas = separateRoombas(roomba1, roomba2);
+    roomba1 = separatedRoombas[0];
+    roomba2 = separatedRoombas[1];
+  }
+  roomba1.velocity *= 2;
+  roomba2.velocity *= 2;
+  return [roomba1, roomba2];
 }
 
 function collideRoombas(roomba1, roomba2, roombas) {
@@ -61,23 +76,41 @@ function collideRoombas(roomba1, roomba2, roombas) {
   var idx2 = roombas.indexOf(roomba2);
   var dx = Math.abs(roomba1.x - roomba2.x);
   var dy = Math.abs(roomba1.y - roomba2.y);
-  var angle = Math.atan(dy/dx);
-  if (roomba2.y >= roomba1.y) {
-    roomba2.direction = 1 + angle;
-    roomba1.direction = angle;
-  }
-  if (roomba2.y < roomba1.y) {
-    roomba2.direction = 1 - angle;
-    roomba1.direction = 2 - angle;
-  }
-  roomba1.collisions.push(roomba2.name);
-  roomba2.collisions.push(roomba1.name);
+  var angle = Math.atan(dy/dx)/Math.PI;
+  roomba1.direction = bisectDirection(roomba1.direction, roomba1.y >= roomba2.y, roomba1.x >= roomba2.x, angle);
+  roomba2.direction = bisectDirection(roomba2.direction, roomba2.y >= roomba1.y, roomba2.x >= roomba1.x, angle);
   var vel1 = roomba1.velocity;
   roomba1.velocity = roomba2.velocity;
   roomba2.velocity = vel1;
-  roombas[idx1] = roomba1;
-  roombas[idx2] = roomba2;
+  var separatedRoombas = separateRoombas(roomba1, roomba2)
+  roombas[idx1] = separatedRoombas[0];
+  roombas[idx2] = separatedRoombas[1];
   return roombas;
+}
+
+function bisectDirection(direction, furtherDown, furtherRight, angle) {
+  var reflectionAngle;
+  var distFromBisectAngle;
+  if (furtherDown) {
+    if (furtherRight) {
+      reflectionAngle = 1.5 + angle;
+    }
+    if (!furtherRight) {
+      reflectionAngle = 1.5 - angle;
+    }
+  }
+  if (!furtherDown) {
+    if (furtherRight) {
+      reflectionAngle = .5 - angle;
+    }
+    if (!furtherRight) {
+      reflectionAngle = .5 + angle;
+    }
+  }
+  distFromBisectAngle = reflectionAngle - direction;
+  direction = reflectionAngle + distFromBisectAngle;
+  if (direction > 2) { direction -= 2; }
+  return direction;
 }
 
 function calculateMovement(roombas) {
@@ -118,7 +151,7 @@ function checkArenaBounds(roomba) {
   if (roomba.y <= roomba.radius || roomba.y >= 300 - roomba.radius) {
     bounceOffTopOrBottom(roomba);
     if (roomba.y <= 0) roomba.y = roomba.radius + 1;
-    if (roomba.y >= 320 - roomba.radius) roomba.y = 300 - roomba.radius;
+    if (roomba.y >= 320 - roomba.radius) roomba.y = 299 - roomba.radius;
   }
   if (roomba.x <= roomba.radius || roomba.x >= 320 - roomba.radius) {
     if (roomba.x <= roomba.radius) roomba.x = roomba.radius + 1;
@@ -132,9 +165,8 @@ var roombas = {};
 var roombaArray = [];
 
 setInterval(function() {
-  roombaArray = detectCollisions(roombaArray);
-  roombaArray = calculateMovement(roombaArray);
-}, 25);
+  roombaArray = calculateMovement(detectCollisions(roombaArray));
+}, 20);
 
 io.on('connection', function(socket) {
   var roombaIndex;

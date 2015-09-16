@@ -4,6 +4,89 @@ var app = angular.module('roomba-battle', []);
 
 'use strict';
 
+app.controller('arenaController', function(socket, drawingService) {
+  socket.on('roombas', function(roombas) {
+    //positionService.setRoombas(roombas);
+    drawingService.drawRoombas(roombas);
+  });
+});
+
+'use strict';
+
+app.controller('mainController', function(){
+  var vm = this;
+});
+
+'use strict';
+
+app.controller('roombaController', function($interval, socket) {
+
+  var vm = this;
+
+  vm.roomba = {};
+  vm.roomba.y = 100;
+  vm.roomba.x = 100;
+  vm.roomba.name = "Guy";
+  vm.roomba.color = 'orange';
+  vm.roomba.radius = 20;
+  vm.roomba.direction = .55;
+  vm.roomba.velocity = 2;
+  vm.roomba.collidingWith = [];
+
+  vm.joinGame = function() {
+    socket.emit('join game', vm.roomba);
+    $interval(function() {
+      socket.emit('requestRoombas');
+    }, 15);
+  };
+});
+
+'use strict';
+
+app.directive('battleArena', function() {
+
+  return {
+    restrict: 'E',
+    controller: 'arenaController',
+    template: '<canvas id="battle-arena" height="300" width="320"></canvas>',
+    replace: true
+  };
+
+});
+
+'use strict';
+
+app.directive('roombah', function(socket) {
+  return {
+    restrict: 'E',
+    template: '<div class="roombah">{{ roombah.name }}</div>', 
+    replace: true,
+    bindToController: {
+      'top': '=',
+      'right': '=',
+      'color': '=',
+      'name': '='
+    },
+    controller: 'roombahController',
+    controllerAs: 'rmbCtrl',
+    link:function (scope, element, attrs) {
+      scope.$watch(attrs.top, function (y) {
+        element.css('top', y + 'px');
+        socket.emit('top', y);
+      });
+      scope.$watch(attrs.right, function (x) {
+        element.css('right', x + 'px');
+        socket.emit('right', x);
+      });
+      scope.$watch(attrs.color, function (color) {
+        element.css('backgroundColor', color);
+      });
+    }
+  };
+});
+
+'use strict';
+
 app.factory('drawingService', function() {
 
   var service = {};
@@ -158,89 +241,6 @@ app.factory('socket', function($rootScope) {
   };
 
   return service;
-});
-
-'use strict';
-
-app.controller('arenaController', function(socket, drawingService) {
-  socket.on('roombas', function(roombas) {
-    //positionService.setRoombas(roombas);
-    drawingService.drawRoombas(roombas);
-  });
-});
-
-'use strict';
-
-app.controller('mainController', function(){
-  var vm = this;
-});
-
-'use strict';
-
-app.controller('roombaController', function($interval, socket) {
-
-  var vm = this;
-
-  vm.roomba = {};
-  vm.roomba.y = 100;
-  vm.roomba.x = 100;
-  vm.roomba.name = "Guy";
-  vm.roomba.color = 'orange';
-  vm.roomba.radius = 20;
-  vm.roomba.direction = .55;
-  vm.roomba.velocity = 2;
-  vm.roomba.collisions = [];
-
-  vm.joinGame = function() {
-    socket.emit('join game', vm.roomba);
-    $interval(function() {
-      socket.emit('requestRoombas');
-    }, 25);
-  };
-});
-
-'use strict';
-
-app.directive('battleArena', function() {
-
-  return {
-    restrict: 'E',
-    controller: 'arenaController',
-    template: '<canvas id="battle-arena" height="300" width="320"></canvas>',
-    replace: true
-  };
-
-});
-
-'use strict';
-
-app.directive('roombah', function(socket) {
-  return {
-    restrict: 'E',
-    template: '<div class="roombah">{{ roombah.name }}</div>', 
-    replace: true,
-    bindToController: {
-      'top': '=',
-      'right': '=',
-      'color': '=',
-      'name': '='
-    },
-    controller: 'roombahController',
-    controllerAs: 'rmbCtrl',
-    link:function (scope, element, attrs) {
-      scope.$watch(attrs.top, function (y) {
-        element.css('top', y + 'px');
-        socket.emit('top', y);
-      });
-      scope.$watch(attrs.right, function (x) {
-        element.css('right', x + 'px');
-        socket.emit('right', x);
-      });
-      scope.$watch(attrs.color, function (color) {
-        element.css('backgroundColor', color);
-      });
-    }
-  };
 });
 
 //# sourceMappingURL=app.js.map
