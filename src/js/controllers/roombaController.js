@@ -11,12 +11,12 @@ app.controller('roombaController', function($interval, socket) {
   vm.roomba.color = 'orange';
   vm.roomba.radius = 20;
   vm.roomba.direction = .55;
-  vm.roomba.velocity = 2;
+  vm.roomba.speed = 2;
   vm.roomba.xVelocity = function() {
-    return (vm.roomba.velocity)*(Math.cos(vm.roomba.direction * Math.PI));
+    return (vm.roomba.speed)*(Math.cos(vm.roomba.direction * Math.PI));
   }();
   vm.roomba.yVelocity = function() {
-    return (vm.roomba.velocity)*(Math.sin(vm.roomba.direction * Math.PI));
+    return (vm.roomba.speed)*(Math.sin(vm.roomba.direction * Math.PI));
   }();
   vm.roomba.collidingWith = [];
 

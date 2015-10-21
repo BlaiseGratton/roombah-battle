@@ -65,13 +65,11 @@ function separateRoombas(roomba1, roomba2) {
   return [roomba1, roomba2];
 }
 
-function calculateCollisionVector(roomba, collisionAngle, velocity) {
+function calculateCollisionVectors(roomba, velocity) {
   var vectors = { 'independentVector': '', 'collidingVector': '' };
-  var φ = collisionAngle - roomba.direction;
-  if (φ > 2) φ -= 2;
-  if (φ < 0) φ += 2;
+  var φ = Math.abs(roomba.collidingAngle - roomba.direction);
   φ *= Math.PI;
-  vectors.collidingVector = (Math.cos(φ)/velocity);
+  vectors.collidingVector = (Math.cos(φ)*velocity);
   vectors.independentVector = (Math.tan(φ)*vectors.collidingVector);
   return vectors;
 }
@@ -84,11 +82,16 @@ function convertVectorsToSpeed(vectors) {
   return Math.sqrt(Math.pow(vectors.independentVector, 2) + Math.pow(vectors.collidingVector, 2));
 }
 
-function calculateDirection(roomba, vectors, collisionAngle) {
-  roomba.direction += (
-    Math.tan(vectors.independentVector/vectors.collidingVector) + collisionAngle
+function calculateDirection(roomba, vectors) {
+  var direction = roomba.collidingAngle - 1 + (
+    Math.atan(vectors.independentVector/vectors.collidingVector)/Math.PI
   );
-  return roomba.direction;
+  roomba.collidingAngle = 0;
+  if (direction > 2)
+    direction -= 2;
+  if (direction < 0)
+    direction += 2;
+  return direction;
 }
 
 function convertDirectionToXYVectors(roomba) {
@@ -109,47 +112,49 @@ function convertDirectionToXYVectors(roomba) {
   return roomba;
 }
 
+function setCollidingAngle(roomba, otherRoomba, collisionAngle) {
+  var quadrant;
+  if (roomba.y < otherRoomba.y) {
+    if (roomba.x < otherRoomba.x) 
+      quadrant = .5;
+    if (roomba.x > otherRoomba.x)
+      quadrant = 1;
+  }
+  if (roomba.y > otherRoomba.y) {
+    if (roomba.x > otherRoomba.x)
+      quadrant = 1.5;
+    if (roomba.x < otherRoomba.x)
+      quadrant = 2;
+  }
+  return quadrant - collisionAngle;
+}
+
 function collideRoombas(roomba1, roomba2, roombas) {
   var idx1 = roombas.indexOf(roomba1);
   var idx2 = roombas.indexOf(roomba2);
   var dx = Math.abs(roomba1.x - roomba2.x);
   var dy = Math.abs(roomba1.y - roomba2.y);
   var collisionAngle = Math.atan(dy/dx)/Math.PI;
+  roomba1.collidingAngle = setCollidingAngle(roomba1, roomba2, collisionAngle);
+  roomba2.collidingAngle = setCollidingAngle(roomba2, roomba1, collisionAngle);
   var r1v1 = Math.sqrt(Math.pow(roomba1.xVelocity, 2) + Math.pow(roomba1.yVelocity, 2));
   var r2v1 = Math.sqrt(Math.pow(roomba2.xVelocity, 2) + Math.pow(roomba2.yVelocity, 2));
-  var rba1Vectors = calculateCollisionVector(roomba1, collisionAngle, r1v1);
-  var rba2Vectors = calculateCollisionVector(roomba2, collisionAngle, r2v1);
+  var rba1Vectors = calculateCollisionVectors(roomba1, r1v1);
+  var rba2Vectors = calculateCollisionVectors(roomba2, r2v1);
   var rba1CollidingVector = rba1Vectors.collidingVector;
   var rba2CollidingVector = rba2Vectors.collidingVector;
   rba1Vectors.collidingVector = collideVectors(rba1CollidingVector, rba2CollidingVector);
   rba2Vectors.collidingVector = collideVectors(rba2CollidingVector, rba1CollidingVector);
   roomba1.speed = convertVectorsToSpeed(rba1Vectors);
   roomba2.speed = convertVectorsToSpeed(rba2Vectors);
-  roomba1.direction = calculateDirection(roomba1, rba1Vectors, collisionAngle);
-  roomba2.direction = calculateDirection(roomba2, rba2Vectors, collisionAngle);
+  roomba1.direction = calculateDirection(roomba1, rba1Vectors);
+  roomba2.direction = calculateDirection(roomba2, rba2Vectors);
   roomba1 = convertDirectionToXYVectors(roomba1);
   roomba2 = convertDirectionToXYVectors(roomba2);
-  roombas[idx1] = roomba1;
-  roombas[idx2] = roomba2;
-  return roombas;
-
-  /*
-  var dx = Math.abs(roomba1.x - roomba2.x);
-  var dy = Math.abs(roomba1.y - roomba2.y);
-  var angle = Math.atan(dy/dx)/Math.PI;
-  var overtaking = Math.abs(roomba1.direction - roomba2.direction) < .5 || 
-      Math.abs(roomba1.direction - roomba2.direction) > 1.5;
-  roomba1.direction = bisectDirection(roomba1.direction, roomba2.direction, roomba1.y >= roomba2.y, 
-      roomba1.x >= roomba2.x, angle, overtaking);
-  roomba2.direction = bisectDirection(roomba2.direction, roomba1.direction, roomba2.y >= roomba1.y, 
-      roomba2.x >= roomba1.x, angle, overtaking);
-  var vel1 = roomba1.velocity;
-  roomba1.velocity = roomba2.velocity;
-  roomba2.velocity = vel1;
-  var separatedRoombas = separateRoombas(roomba1, roomba2)
+  var separatedRoombas = separateRoombas(roomba1, roomba2);
   roombas[idx1] = separatedRoombas[0];
   roombas[idx2] = separatedRoombas[1];
-  */
+  return roombas;
 }
 
 function setRoombaDirection(roomba) {
