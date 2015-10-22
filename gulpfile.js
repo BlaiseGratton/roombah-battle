@@ -7,6 +7,7 @@ rename = require('gulp-rename'),
 sass = require('gulp-sass'),
 maps = require('gulp-sourcemaps'),
 del = require('del'),
+mocha = require('gulp-mocha'),
 ngAnnotate = require('gulp-ng-annotate');
 
 gulp.task("concatScripts", function() {
@@ -47,11 +48,20 @@ gulp.task('copyIndex', function() {
       .pipe(gulp.dest('public'));
 });
 
+gulp.task('test', function() {
+  return gulp.src('./test/**/*.js', {read: false})
+      .pipe(mocha({reporter: 'nyan'}));
+});
+
 gulp.task('watchFiles', function() {
   gulp.watch(['src/styles/**/*.scss', 'src/styles/*.scss'], ['compileSass']);
   gulp.watch(['src/js/*.js', 'src/js/**/*.js'], ['concatScripts']);
   gulp.watch(['src/index.html'], ['copyIndex']);
   gulp.watch(['src/views/**/*.html'], ['transferViews']);
+});
+
+gulp.task('watchTests', function() {
+  gulp.watch(['test/**/*.js'], ['test']);
 });
 
 gulp.task('serve', ['watchFiles']);
