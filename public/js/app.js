@@ -31,19 +31,78 @@ app.controller('roombaController', function($interval, socket) {
   vm.roomba.radius = 20;
   vm.roomba.direction = .55;
   vm.roomba.speed = 2;
-  vm.roomba.xVelocity = function() {
-    return (vm.roomba.speed)*(Math.cos(vm.roomba.direction * Math.PI));
-  }();
-  vm.roomba.yVelocity = function() {
-    return (vm.roomba.speed)*(Math.sin(vm.roomba.direction * Math.PI));
-  }();
+  vm.roomba.xVelocity = undefined;
+  vm.roomba.yVelocity = undefined;
   vm.roomba.collidingWith = [];
 
+  function calculateXAndYVelocities(direction, speed) {
+    var theta;
+    if (direction < .5)
+      theta = direction;
+    else if (direction < 1)
+      theta = direction - .5;
+    else if (direction < 1.5)
+      theta = direction - 1;
+    else if (direction < 2)
+      theta = direction - 1.5;
+    vm.roomba.xVelocity = speed * (Math.sin((direction * Math.PI)));
+    vm.roomba.yVelocity = speed * (Math.cos((direction * Math.PI)));
+    if (direction > 1)
+      vm.roomba.yVelocity *= (-1);
+    if (direction > .5 && direction < 1.5)
+      vm.roomba.xVelocity *= (-1);
+  }
+
   vm.joinGame = function() {
+    calculateXAndYVelocities(vm.roomba.direction, vm.roomba.speed);
     socket.emit('join game', vm.roomba);
     $interval(function() {
       socket.emit('requestRoombas');
     }, 15);
+  };
+});
+
+'use strict';
+
+app.directive('battleArena', function() {
+
+  return {
+    restrict: 'E',
+    controller: 'arenaController',
+    template: '<canvas id="battle-arena" height="300" width="320"></canvas>',
+    replace: true
+  };
+
+});
+
+'use strict';
+
+app.directive('roombah', function(socket) {
+  return {
+    restrict: 'E',
+    template: '<div class="roombah">{{ roombah.name }}</div>', 
+    replace: true,
+    bindToController: {
+      'top': '=',
+      'right': '=',
+      'color': '=',
+      'name': '='
+    },
+    controller: 'roombahController',
+    controllerAs: 'rmbCtrl',
+    link:function (scope, element, attrs) {
+      scope.$watch(attrs.top, function (y) {
+        element.css('top', y + 'px');
+        socket.emit('top', y);
+      });
+      scope.$watch(attrs.right, function (x) {
+        element.css('right', x + 'px');
+        socket.emit('right', x);
+      });
+      scope.$watch(attrs.color, function (color) {
+        element.css('backgroundColor', color);
+      });
+    }
   };
 });
 
@@ -203,50 +262,6 @@ app.factory('socket', function($rootScope) {
   };
 
   return service;
-});
-
-'use strict';
-
-app.directive('battleArena', function() {
-
-  return {
-    restrict: 'E',
-    controller: 'arenaController',
-    template: '<canvas id="battle-arena" height="300" width="320"></canvas>',
-    replace: true
-  };
-
-});
-
-'use strict';
-
-app.directive('roombah', function(socket) {
-  return {
-    restrict: 'E',
-    template: '<div class="roombah">{{ roombah.name }}</div>', 
-    replace: true,
-    bindToController: {
-      'top': '=',
-      'right': '=',
-      'color': '=',
-      'name': '='
-    },
-    controller: 'roombahController',
-    controllerAs: 'rmbCtrl',
-    link:function (scope, element, attrs) {
-      scope.$watch(attrs.top, function (y) {
-        element.css('top', y + 'px');
-        socket.emit('top', y);
-      });
-      scope.$watch(attrs.right, function (x) {
-        element.css('right', x + 'px');
-        socket.emit('right', x);
-      });
-      scope.$watch(attrs.color, function (color) {
-        element.css('backgroundColor', color);
-      });
-    }
-  };
 });
 
 //# sourceMappingURL=app.js.map
