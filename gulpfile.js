@@ -10,6 +10,11 @@ del = require('del'),
 mocha = require('gulp-mocha'),
 ngAnnotate = require('gulp-ng-annotate');
 
+function handleError(err) {
+  console.log(err.toString());
+  this.emit('end');
+}
+
 gulp.task("concatScripts", function() {
     return gulp.src([
         'src/js/app.js',
@@ -50,7 +55,8 @@ gulp.task('copyIndex', function() {
 
 gulp.task('test', function() {
   return gulp.src('./test/**/*.js', {read: false})
-      .pipe(mocha({reporter: 'nyan'}));
+      .pipe(mocha({reporter: 'spec'}))
+      .on('error', handleError);
 });
 
 gulp.task('watchFiles', function() {
