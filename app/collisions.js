@@ -156,15 +156,16 @@ function collideRoombas(roomba1, roomba2, roombas) {
   return roombas;
 }
 
-function setRoombaDirection(roomba) {
+function calculateDirectionAndSpeedFromXYVectors(roomba) {
   var quarter = ((2*Math.PI)/4);
-  var theta = Math.abs(Math.atan(roomba.yVelocity/roomba.xVelocity));
+  roomba.speed = Math.sqrt(Math.pow(roomba.xVelocity, 2) + Math.pow(roomba.yVelocity, 2));
+  var theta = Math.abs(Math.atan(roomba.xVelocity/roomba.yVelocity));
   if (roomba.xVelocity >= 0 && roomba.yVelocity >= 0)
-    roomba.direction = quarter - theta;
+    roomba.direction = theta;
   else if (roomba.xVelocity >= 0 && roomba.yVelocity < 0)
     roomba.direction = (2*quarter) - theta;
   else if (roomba.xVelocity < 0 && roomba.yVelocity < 0)
-    roomba.direction = (3*quarter) - theta;
+    roomba.direction = (2*quarter) + theta;
   else if (roomba.xVelocity < 0 && roomba.yVelocity >= 0)
     roomba.direction = (4*quarter) - theta;
   return roomba;
@@ -185,13 +186,13 @@ function calculateMovement(roombas) {
 
 function bounceOffTopOrBottom(roomba) {
   roomba.yVelocity *= -1;
-  roomba = setRoombaDirection(roomba);
+  roomba = calculateDirectionAndSpeedFromXYVectors(roomba);
   return roomba;
 };
 
 function bounceOffSides(roomba) {
   roomba.xVelocity *= -1;
-  roomba = setRoombaDirection(roomba);
+  roomba = calculateDirectionAndSpeedFromXYVectors(roomba);
   return roomba;
 };
 
@@ -221,7 +222,6 @@ module.exports = {
   convertDirectionToXYVectors: convertDirectionToXYVectors,
   setCollidingAngle: setCollidingAngle,
   collideRoombas: collideRoombas,
-  setRoombaDirection: setRoombaDirection,
   bounceOffSides: bounceOffSides,
   bounceOffTopOrBottom: bounceOffTopOrBottom,
   checkArenaBounds: checkArenaBounds

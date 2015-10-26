@@ -31,27 +31,6 @@ app.controller('roombaController', function($interval, socket) {
     return roomba;
   }
 
-
-
-
-  function calculateXAndYVelocities(direction, speed) {
-    var theta;
-    if (direction < .5)
-      theta = direction;
-    else if (direction < 1)
-      theta = direction - .5;
-    else if (direction < 1.5)
-      theta = direction - 1;
-    else if (direction < 2)
-      theta = direction - 1.5;
-    vm.roomba.xVelocity = speed * (Math.sin((theta * Math.PI)));
-    vm.roomba.yVelocity = speed * (Math.cos((theta * Math.PI)));
-    if (direction < 1)
-      vm.roomba.xVelocity *= (-1);
-    if (direction > .5 && direction < 1.5)
-      vm.roomba.yVelocity *= (-1);
-  }
-
   vm.joinGame = function() {
     //calculateXAndYVelocities(vm.roomba.direction, vm.roomba.speed);
     vm.roomba = calculateDirectionAndSpeedFromXYVectors(vm.roomba);
