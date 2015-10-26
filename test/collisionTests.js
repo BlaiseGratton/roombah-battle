@@ -4,21 +4,6 @@ var collisions = require('../app/collisions.js');
 
 var roomba, roomba1, roomba2, roomba3;
 
-function calculateDirectionAndSpeedFromXYVectors(roomba) {
-  var quarter = ((2*Math.PI)/4);
-  roomba.speed = Math.sqrt(Math.pow(roomba.xVelocity, 2) + Math.pow(roomba.yVelocity, 2));
-  var theta = Math.abs(Math.atan(roomba.xVelocity/roomba.yVelocity));
-  if (roomba.xVelocity >= 0 && roomba.yVelocity >= 0)
-    roomba.direction = theta;
-  else if (roomba.xVelocity >= 0 && roomba.yVelocity < 0)
-    roomba.direction = (2*quarter) - theta;
-  else if (roomba.xVelocity < 0 && roomba.yVelocity < 0)
-    roomba.direction = (2*quarter) + theta;
-  else if (roomba.xVelocity < 0 && roomba.yVelocity >= 0)
-    roomba.direction = (4*quarter) - theta;
-  return roomba;
-}
-
 describe('Simple Tests:', function() {
 beforeEach(function() {
   roomba = {
@@ -30,7 +15,7 @@ beforeEach(function() {
       xVelocity: 1,
       yVelocity: 1
     };
-    roomba = calculateDirectionAndSpeedFromXYVectors(roomba);
+    roomba = collisions.calculateDirectionAndSpeedFromXYVectors(roomba);
 
     roomba1 = {
       y: 100,
@@ -41,7 +26,7 @@ beforeEach(function() {
       xVelocity: -1,
       yVelocity: -1
     };
-    roomba1 = calculateDirectionAndSpeedFromXYVectors(roomba1);
+    roomba1 = collisions.calculateDirectionAndSpeedFromXYVectors(roomba1);
     
     roomba2 = {
       y: 100,
@@ -52,7 +37,7 @@ beforeEach(function() {
       xVelocity: 2,
       yVelocity: .1
     };
-    roomba2 = calculateDirectionAndSpeedFromXYVectors(roomba2);
+    roomba2 = collisions.calculateDirectionAndSpeedFromXYVectors(roomba2);
 
     roomba3 = {
       y: 100,
@@ -63,7 +48,7 @@ beforeEach(function() {
       xVelocity: -0.1,
       yVelocity: -0.5
     };
-    roomba3 = calculateDirectionAndSpeedFromXYVectors(roomba3);
+    roomba3 = collisions.calculateDirectionAndSpeedFromXYVectors(roomba3);
   });
 
 

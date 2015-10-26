@@ -224,5 +224,6 @@ module.exports = {
   collideRoombas: collideRoombas,
   bounceOffSides: bounceOffSides,
   bounceOffTopOrBottom: bounceOffTopOrBottom,
-  checkArenaBounds: checkArenaBounds
+  checkArenaBounds: checkArenaBounds,
+  calculateDirectionAndSpeedFromXYVectors: calculateDirectionAndSpeedFromXYVectors
 };
