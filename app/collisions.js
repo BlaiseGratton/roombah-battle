@@ -112,32 +112,33 @@ function convertDirectionToXYVectors(roomba) {
   return roomba;
 }
 
-function setCollidingAngle(roomba, otherRoomba, collisionAngle) {
-  var quadrant = (2*Math.PI)/4;
+function setCollidingAngle(roomba, otherRoomba) {
+  var dx = roomba.x - otherRoomba.x;
+  var dy = roomba.y - otherRoomba.y;
+  var quadrant = Math.PI/2;
+  var angle = Math.abs(Math.atan(dy/dx));
   var collidingAngle;
-  if (roomba.y > otherRoomba.y) {
-    if (roomba.x < otherRoomba.x) 
-      collidingAngle = quadrant - collisionAngle;
-    if (roomba.x > otherRoomba.x)
-      collidingAngle = (4*quadrant) - collisionAngle;
-  }
   if (roomba.y < otherRoomba.y) {
+    if (roomba.x < otherRoomba.x) 
+      collidingAngle = quadrant - angle;
     if (roomba.x > otherRoomba.x)
-      collidingAngle = (3*quadrant) - collisionAngle;
-    if (roomba.x < otherRoomba.x)
-      collidingAngle = (2*quadrant) - collisionAngle;
+      collidingAngle = (3*quadrant) + angle;
   }
-  return collidingAngle;
+  if (roomba.y > otherRoomba.y) {
+    if (roomba.x > otherRoomba.x)
+      collidingAngle = (3*quadrant) - angle;
+    if (roomba.x < otherRoomba.x)
+      collidingAngle = quadrant + angle;
+  }
+  roomba.collidingAngle = collidingAngle;
+  return roomba;
 }
 
 function collideRoombas(roomba1, roomba2, roombas) {
   var idx1 = roombas.indexOf(roomba1);
   var idx2 = roombas.indexOf(roomba2);
-  var dx = Math.abs(roomba1.x - roomba2.x);
-  var dy = Math.abs(roomba1.y - roomba2.y);
-  var collisionAngle = Math.atan(dy/dx);
-  roomba1.collidingAngle = setCollidingAngle(roomba1, roomba2, collisionAngle);
-  roomba2.collidingAngle = setCollidingAngle(roomba2, roomba1, collisionAngle);
+  roomba1 = setCollidingAngle(roomba1, roomba2);
+  roomba2 = setCollidingAngle(roomba2, roomba1);
   var rba1Vectors = calculateCollisionVectors(roomba1, roomba1.speed);
   var rba2Vectors = calculateCollisionVectors(roomba2, roomba2.speed);
   var rba1CollidingVector = rba1Vectors.collidingVector;

@@ -108,10 +108,42 @@ beforeEach(function() {
     });
   });
 
-  describe('convertVectorsToSpeed:', function() {
-    describe('it', function() {
-      it('should return the calculated speed', function() {
-        assert.equal(20, 20);
+  describe('Setting the Collision Angle:', function() {
+    describe('The method', function() {
+      it('should properly calculate the colliding angle (1)', function() {
+        roomba.x = 80;
+        roomba.y = 80;
+        roomba = collisions.setCollidingAngle(roomba, roomba1);
+        assert.equal(0.7853981633974483, roomba.collidingAngle);
+        roomba1 = collisions.setCollidingAngle(roomba1, roomba);
+        assert.equal(3.9269908169872414, roomba1.collidingAngle);
+      });
+
+      it('should properly calculate the colliding angle (2)', function() {
+        roomba.x = 99.9;
+        roomba.y = 80;
+        roomba = collisions.setCollidingAngle(roomba, roomba2);
+        assert.equal(0.004999958333957943, roomba.collidingAngle);
+        roomba2 = collisions.setCollidingAngle(roomba2, roomba);
+        assert.equal(3.146592611923751, roomba2.collidingAngle);
+      });
+
+      it('should properly calculate the colliding angle (3)', function() {
+        roomba3.x = 110;
+        roomba3.y = 95;
+        roomba = collisions.setCollidingAngle(roomba, roomba3);
+        assert.equal(2.0344439357957027, roomba.collidingAngle);
+        roomba3 = collisions.setCollidingAngle(roomba3, roomba);
+        assert.equal(5.176036589385496, roomba3.collidingAngle);
+      });
+
+      it('should properly calculate the colliding angle (4)', function() {
+        roomba3.x = 110;
+        roomba3.y = 102;
+        roomba = collisions.setCollidingAngle(roomba, roomba3);
+        assert.equal(1.3734007669450157, roomba.collidingAngle);
+        roomba3 = collisions.setCollidingAngle(roomba3, roomba);
+        assert.equal(4.514993420534809, roomba3.collidingAngle);
       });
     });
   });
