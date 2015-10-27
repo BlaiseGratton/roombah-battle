@@ -44,13 +44,23 @@ function separateRoombas(roomba1, roomba2) {
   return [roomba1, roomba2];
 }
 
-function calculateCollisionVectors(roomba, velocity) {
-  var vectors = { 'independentVector': '', 'collidingVector': '' };
-  var φ = Math.abs(roomba.collidingAngle - roomba.direction);
-  vectors.collidingVector = (Math.cos(φ)*velocity);
-  vectors.independentVector = (Math.tan(φ)*vectors.collidingVector);
-  return vectors;
-}
+function calculateCollisionVectors(rba) {
+    var vectors = { 'independentVector': '', 'collidingVector': '' };
+    var φ = Math.abs(rba.collidingAngle - rba.direction);
+    vectors.collidingVector = (Math.cos(φ)*rba.speed);
+    vectors.independentVector = (Math.tan(φ)*vectors.collidingVector);
+    if (Math.abs(rba.direction - rba.collidingAngle) > (Math.PI/2))
+      vectors.collidingVector *= (-1);
+    if (rba.collidingAngle > rba.direction) 
+      vectors.independentDirection = collidingAngle - (Math.PI/2);
+    if (rba.collidingAngle < rba.direction)
+      vectors.independentDirection = collidingAngle + (Math.PI/2);
+    if (vectors.independentDirection < 0) 
+      vectors.independentDirection += (2*Math.PI);
+    if (vectors.independentDirection > 0)
+      vectors.independentDirection -= (2*Math.PI);
+    return vectors;
+  }
 
 function collideVectors(vector1, vector2){
   return vector2; // this is assuming equal masses!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -60,17 +70,25 @@ function convertVectorsToSpeed(vectors) {
   return Math.sqrt(Math.pow(vectors.independentVector, 2) + Math.pow(vectors.collidingVector, 2));
 }
 
-function calculateDirection(roomba, vectors) {
-  var direction = roomba.collidingAngle + (
-    Math.atan(vectors.independentVector/vectors.collidingVector)
-  );
-  roomba.collidingAngle = 0;
+function calculateDirectionAndSpeed(roomba, vectors) {
+  var direction;
+  if (vectors.collidingVector < 0)
+    roomba.collidingAngle -= Math.PI;
+  if (roomba.collidingAngle < 0)
+    roomba.collidingAngle += (Math.PI*2);
+  var independentX = Math.sin(independentTheta) * vectors.independentVector;
+  var collidingX = 0;
+  var collidingY = 0;
+
+
+
 
   if (direction > (2*Math.PI))
     direction -= (2*Math.PI);
   if (direction < 0)
     direction += (2*Math.PI);
-  return direction;
+  roomba.direction = direction;
+  return roomba;
 }
 
 function calculateXAndYVelocities(direction, speed) {
@@ -97,7 +115,7 @@ function convertDirectionToXYVectors(roomba) {
   if (roomba.direction > .5)
     theta = roomba.direction;
   else if (roomba.direction < 1)
-    theta = roomba.direction  - .5;
+    theta = roomba.direction  - 0.5;
   else if (roomba.direction < 1.5)
     theta = roomba.direction - 1;
   else if (roomba.direction < 2)
@@ -139,16 +157,16 @@ function collideRoombas(roomba1, roomba2, roombas) {
   var idx2 = roombas.indexOf(roomba2);
   roomba1 = setCollidingAngle(roomba1, roomba2);
   roomba2 = setCollidingAngle(roomba2, roomba1);
-  var rba1Vectors = calculateCollisionVectors(roomba1, roomba1.speed);
-  var rba2Vectors = calculateCollisionVectors(roomba2, roomba2.speed);
+  var rba1Vectors = calculateCollisionVectors(roomba1);
+  var rba2Vectors = calculateCollisionVectors(roomba2);
   var rba1CollidingVector = rba1Vectors.collidingVector;
   var rba2CollidingVector = rba2Vectors.collidingVector;
   rba1Vectors.collidingVector = collideVectors(rba1CollidingVector, rba2CollidingVector);
   rba2Vectors.collidingVector = collideVectors(rba2CollidingVector, rba1CollidingVector);
   roomba1.speed = convertVectorsToSpeed(rba1Vectors);
   roomba2.speed = convertVectorsToSpeed(rba2Vectors);
-  roomba1.direction = calculateDirection(roomba1, rba1Vectors);
-  roomba2.direction = calculateDirection(roomba2, rba2Vectors);
+  roomba1 = calculateDirection(roomba1, rba1Vectors);
+  roomba2 = calculateDirection(roomba2, rba2Vectors);
   roomba1 = convertDirectionToXYVectors(roomba1);
   roomba2 = convertDirectionToXYVectors(roomba2);
   var separatedRoombas = separateRoombas(roomba1, roomba2);
@@ -219,7 +237,7 @@ module.exports = {
   collideVectors: collideVectors,
   convertVectorsToSpeed: convertVectorsToSpeed,
   calculateMovement: calculateMovement,
-  calculateDirection: calculateDirection,
+  calculateDirectionAndSpeed: calculateDirectionAndSpeed,
   convertDirectionToXYVectors: convertDirectionToXYVectors,
   setCollidingAngle: setCollidingAngle,
   collideRoombas: collideRoombas,

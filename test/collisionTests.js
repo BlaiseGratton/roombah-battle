@@ -147,4 +147,52 @@ beforeEach(function() {
       });
     });
   });
+
+  function calculateCollisionVectors(rba) {
+    var vectors = { 'independentVector': '', 'collidingVector': '' };
+    var φ = Math.abs(rba.collidingAngle - rba.direction);
+    vectors.collidingVector = (Math.cos(φ)*rba.speed);
+    vectors.independentVector = (Math.tan(φ)*vectors.collidingVector);
+    if (Math.abs(rba.direction - rba.collidingAngle) > (Math.PI/2))
+      vectors.collidingVector *= (-1);
+    if (rba.collidingAngle > rba.direction) 
+      vectors.independentDirection = collidingAngle - (Math.PI/2);
+    if (rba.collidingAngle < rba.direction)
+      vectors.independentDirection = collidingAngle + (Math.PI/2);
+    if (vectors.independentDirection < 0) 
+      vectors.independentDirection += (2*Math.PI);
+    if (vectors.independentDirection > 0)
+      vectors.independentDirection -= (2*Math.PI);
+    return vectors;
+  }
+
+  describe('Calculating Collision Vectors:', function() {
+    it('should properly calculate collision vectors (1)', function() {
+      roomba.collidingAngle = 1.7853981633974483;
+      var vectors = calculateCollisionVectors(roomba);
+      assert.equal(0.7641028487401796, vectors.collidingVector);
+      assert.equal(1.190019679058772, vectors.independentVector);
+    });
+
+    it('should properly calculate collision vectors (2)', function() {
+      roomba1.collidingAngle = 2.429398139383974483;
+      var vectors = calculateCollisionVectors(roomba1);
+      assert.equal(0.7641028487401796, vectors.collidingVector);
+      assert.equal(1.190019679058772, vectors.independentVector);
+    });
+
+    it('should properly calculate collision vectors (3)', function() {
+      roomba2.collidingAngle = 0.539816339742884483;
+      var vectors = calculateCollisionVectors(roomba2);
+      assert.equal(0.7641028487401796, vectors.collidingVector);
+      assert.equal(1.190019679058772, vectors.independentVector);
+    });
+
+    it('should properly calculate collision vectors (4)', function() {
+      roomba3.collidingAngle = 0.7853981633974483;
+      var vectors = calculateCollisionVectors(roomba3);
+      assert.equal(0.7641028487401796, vectors.collidingVector);
+      assert.equal(1.190019679058772, vectors.independentVector);
+    });
+  });
 });
