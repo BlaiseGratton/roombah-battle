@@ -45,22 +45,35 @@ function separateRoombas(roomba1, roomba2) {
 }
 
 function calculateCollisionVectors(rba) {
-    var vectors = { 'independentVector': '', 'collidingVector': '' };
-    var φ = Math.abs(rba.collidingAngle - rba.direction);
+  var quadrant = Math.PI/2;
+  var vectors = { 'independentVector': '', 'collidingVector': '' };
+  var φ = Math.abs(rba.collidingAngle - rba.direction);
+  var difference = φ;
+  if (φ > 3*quadrant)
+    φ -= 3*quadrant;
+  else if (φ > 2*quadrant)
+    φ -= 2*quadrant;
+  else if (φ > quadrant)
+    φ -= quadrant;
+  if (difference < quadrant || (difference > 2*quadrant && difference < 3*quadrant)) {
     vectors.collidingVector = (Math.cos(φ)*rba.speed);
-    vectors.independentVector = (Math.tan(φ)*vectors.collidingVector);
-    if (Math.abs(rba.direction - rba.collidingAngle) > (Math.PI/2))
-      vectors.collidingVector *= (-1);
-    if (rba.collidingAngle > rba.direction) 
-      vectors.independentDirection = rba.collidingAngle - (Math.PI/2);
-    if (rba.collidingAngle < rba.direction)
-      vectors.independentDirection = rba.collidingAngle + (Math.PI/2);
-    if (vectors.independentDirection < 0) 
-      vectors.independentDirection += (2*Math.PI);
-    if (vectors.independentDirection > 0)
-      vectors.independentDirection -= (2*Math.PI);
-    return vectors;
+    vectors.independentVector = (Math.sin(φ)*vectors.collidingVector);
+  } else {
+    vectors.collidingVector = (Math.sin(φ)*rba.speed);
+    vectors.independentVector = (Math.cos(φ)*vectors.collidingVector);
   }
+  //if (Math.abs(rba.direction - rba.collidingAngle) > (Math.PI/2))
+  //  vectors.collidingVector *= (-1);
+  if (rba.collidingAngle > rba.direction) 
+    vectors.independentDirection = rba.collidingAngle - (Math.PI/2);
+  if (rba.collidingAngle < rba.direction)
+    vectors.independentDirection = rba.collidingAngle + (Math.PI/2);
+  if (vectors.independentDirection < 0) 
+    vectors.independentDirection += (2*Math.PI);
+  if (vectors.independentDirection > 0)
+    vectors.independentDirection -= (2*Math.PI);
+  return vectors;
+}
 
 function collideVectors(vector1, vector2){
   return vector2; // this is assuming equal masses!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -82,6 +95,7 @@ function calculateDirectionAndSpeed(roomba, vectors) {
     direction -= angle;
   if (roomba.collidingAngle > roomba.direction)
     direction += angle;
+  direction += Math.PI;
   if (direction > (2*Math.PI))
     direction -= (2*Math.PI);
   if (direction < 0)
