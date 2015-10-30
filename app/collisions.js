@@ -62,15 +62,13 @@ function calculateCollisionVectors(rba) {
     vectors.collidingVector = (Math.sin(φ)*rba.speed);
     vectors.independentVector = (Math.cos(φ)*vectors.collidingVector);
   }
-  //if (Math.abs(rba.direction - rba.collidingAngle) > (Math.PI/2))
-  //  vectors.collidingVector *= (-1);
   if (rba.collidingAngle > rba.direction) 
     vectors.independentDirection = rba.collidingAngle - (Math.PI/2);
   if (rba.collidingAngle < rba.direction)
     vectors.independentDirection = rba.collidingAngle + (Math.PI/2);
   if (vectors.independentDirection < 0) 
     vectors.independentDirection += (2*Math.PI);
-  if (vectors.independentDirection > 0)
+  if (vectors.independentDirection > 2*Math.PI)
     vectors.independentDirection -= (2*Math.PI);
   return vectors;
 }
@@ -85,8 +83,6 @@ function convertVectorsToSpeed(vectors) {
 
 function calculateDirectionAndSpeed(roomba, vectors) {
   var direction = roomba.direction;
-  if (vectors.collidingVector < 0)
-    roomba.collidingAngle -= Math.PI;
   if (roomba.collidingAngle < 0)
     roomba.collidingAngle += (Math.PI*2);
   var speed = Math.sqrt(Math.pow(vectors.independentVector, 2) + Math.pow(vectors.collidingVector, 2));
